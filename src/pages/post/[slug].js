@@ -1,16 +1,26 @@
 import fs from 'fs';
 import matter from 'gray-matter';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export async function getStaticProps({ params }) {
   const file = fs.readFileSync(`posts/${params.slug}.md`, 'utf-8');
   const { data, content } = matter(file);
 
-  return { props: { frontMatter: data, content, slug: params.slug } };
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .process(content);
+
+  return {
+    props: { frontMatter: data, content: result.toString(), slug: params.slug },
+  };
 }
 
 export async function getStaticPaths() {
@@ -60,13 +70,10 @@ const Post = ({ frontMatter, content, slug }) => {
           />
         </div>
         <h1 className="mt-12">{frontMatter.title}</h1>
-        <ReactMarkdown allowedElements={['h2', 'h3']}>{content}</ReactMarkdown>
-        <ReactMarkdown
+        <div
+          dangerouslySetInnerHTML={{ __html: content }}
           remarkPlugins={[remarkGfm]}
-          components={{ h2: H2, h3: H3 }}
-        >
-          {content}
-        </ReactMarkdown>
+        ></div>
       </div>
     </div>
   );
