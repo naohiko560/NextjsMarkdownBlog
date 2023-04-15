@@ -5,10 +5,87 @@ description: 'Next.jsでmarkdownファイルを利用したブログの構築手
 image: nextjs.png
 ---
 
+## 目次
+↓ここから本文↓  
 Next.js を使って Markdown のブログサイトの構築を一から行なっていきます。
 
 ## Next.js の準備
 
-### プロジェクトの作成
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
 
+### プロジェクトの作成
+[<img src="http://localhost:3000/nextjs-welcome.png" alt="Next.jsのWelcomeページ" width="1024" height="679" />](/)
 npx create-next-app コマンドを利用して Next.js プロジェクトの作成を行います。
+
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+テスト  
+
+```js[class="line-numbers"]
+import Layout from '../components/layout';
+import '../styles/globals.css';
+import '../styles/prism.css';
+import SEO from '../next-seo.config';
+import { DefaultSeo } from 'next-seo';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <Layout>
+      <DefaultSeo {...SEO} />
+      <Component {...pageProps} />
+    </Layout>
+  );
+}
+
+export default MyApp;
+```
+
+#### プロジェクトの作成
+
+[記事一覧](/)
+
+A paragraph with *emphasis* and **strong importance**.
+
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
+
+* Lists
+* [ ] todo
+* [x] done
+
+A table:
+
+| a | b |
+| - | - |
+
+|  TH  |  TH  |
+| ---- | ---- |
+|  TD  |  TD  |
+|  TD  |  TD  |
