@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { createElement } from 'react';
 import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
+import remarkUnwrapImages from 'remark-unwrap-images';
 
 export async function getStaticProps({ params }) {
   const file = fs.readFileSync(`posts/${params.slug}.md`, 'utf-8');
@@ -26,11 +27,12 @@ export async function getStaticProps({ params }) {
     .use(remarkPrism, {
       plugins: ['line-numbers'],
     })
-    .use(remarkToc, { heading: '目次', maxDepth: 3 })
+    .use(remarkToc, { heading: '目次', maxDepth: 3, tight: true })
     .use(remarkGfm)
-    .use(remarkRehype)
+    .use(remarkUnwrapImages)
+    .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
-    .use(rehypeStringify)
+    .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
 
   return {
@@ -38,43 +40,22 @@ export async function getStaticProps({ params }) {
   };
 }
 
-const toReactNode = (content) => {
-  return unified()
-    .use(rehypeParse, {
-      fragment: true,
-    })
-    .use(rehypeReact, {
-      createElement,
-      Fragment,
-      components: {
-        a: MyLink,
-      },
-    })
-    .processSync(content).result;
-};
-
-export async function getStaticPaths() {
-  const files = fs.readdirSync('posts');
-  const paths = files.map((fileName) => ({
-    params: {
-      slug: fileName.replace(/\.md$/, ''),
-    },
-  }));
-
-  return {
-    paths,
-    fallback: false,
-  };
-}
-
 const MyLink = ({ children, href }) => {
-  return (
-    <Link href={href}>
+  if (href == '') href = '/';
+  return href.startsWith('/') || href.startsWith('#') ? (
+    <Link href={href}>{children}</Link>
+  ) : (
+    <Link href={href} target="_black" rel="noopener noreferrer">
       {children}
     </Link>
   );
 };
 
+const MyImage = ({ src, alt, width, height }) => {
+  return <Image src={src} alt={alt} width={width} height={height} />;
+};
+
+// ※下記コードと同じ意味
 // const toReactNode = (content) => {
 //   return unified()
 //     .use(rehypeParse, {
@@ -90,25 +71,44 @@ const MyLink = ({ children, href }) => {
 //     .processSync(content).result;
 // };
 
-// function toReactNode(content) {
-//   const [Content, setContent] = useState(Fragment);
+// ※上記コードと同じ意味
+function toReactNode(content) {
+  const [Content, setContent] = useState(Fragment);
 
-//   useEffect(() => {
-//     const processor = unified()
-//       .use(rehypeParse, {
-//         fragment: true,
-//       })
-//       .use(rehypeReact, {
-//         createElement,
-//         Fragment,
-//       })
-//       .processSync(content);
+  useEffect(() => {
+    const processor = unified()
+      .use(rehypeParse, {
+        fragment: true,
+      })
+      .use(rehypeReact, {
+        createElement,
+        Fragment,
+        components: {
+          a: MyLink,
+          img: MyImage,
+        },
+      })
+      .processSync(content);
 
-//     setContent(processor.result);
-//   }, [content]);
+    setContent(processor.result);
+  }, [content]);
 
-//   return Content;
-// }
+  return Content;
+}
+
+export async function getStaticPaths() {
+  const files = fs.readdirSync('posts');
+  const paths = files.map((fileName) => ({
+    params: {
+      slug: fileName.replace(/\.md$/, ''),
+    },
+  }));
+
+  return {
+    paths,
+    fallback: false,
+  };
+}
 
 const Post = ({ frontMatter, content, slug }) => {
   return (
@@ -144,10 +144,6 @@ const Post = ({ frontMatter, content, slug }) => {
         <h1 className="mt-12">{frontMatter.title}</h1>
         <span>{frontMatter.date}</span>
         {toReactNode(content)}
-        {/* <div
-          dangerouslySetInnerHTML={{ __html: content }}
-          remarkPlugins={[remarkGfm]}
-        ></div> */}
       </div>
     </div>
   );
