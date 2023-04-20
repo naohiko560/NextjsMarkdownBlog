@@ -17,7 +17,6 @@ import { createElement } from 'react';
 import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
 import remarkUnwrapImages from 'remark-unwrap-images';
-import { toUnicode } from 'punycode';
 import { toc } from 'mdast-util-toc';
 
 const getToc = (options) => {
