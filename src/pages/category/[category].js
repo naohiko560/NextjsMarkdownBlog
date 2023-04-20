@@ -1,6 +1,6 @@
 import fs from 'fs';
 import matter from 'gray-matter';
-import PostCard from '@/components/PostCard';
+import PostCard from '../../components/PostCard';
 
 export const getStaticProps = ({ params }) => {
   const files = fs.readdirSync('posts');
@@ -17,7 +17,7 @@ export const getStaticProps = ({ params }) => {
   const category = params.category;
 
   const filteredPosts = posts.filter((post) => {
-    return post.frontMatter.categories.includes(category);
+    return post.frontMatter.category.includes(category);
   });
 
   const sortedPosts = filteredPosts.sort((postA, postB) =>
@@ -32,8 +32,8 @@ export const getStaticProps = ({ params }) => {
 };
 
 export const getStaticPaths = () => {
-  const categories = ['react', 'laravel'];
-  const paths = categories.map((category) => ({ params: { category } }));
+  const category = ['react', 'laravel'];
+  const paths = category.map((category) => ({ params: { category } }));
 
   return {
     paths,
