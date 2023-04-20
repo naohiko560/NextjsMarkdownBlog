@@ -69,7 +69,7 @@ function MyApp({ Component, pageProps }) {
 export default MyApp;
 ```
 
-#### プロジェクトの作成
+#### プロジェクト
 
 [記事一覧](/)
 

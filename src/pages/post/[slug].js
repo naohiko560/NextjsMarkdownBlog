@@ -17,10 +17,29 @@ import { createElement } from 'react';
 import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
 import remarkUnwrapImages from 'remark-unwrap-images';
+import { toUnicode } from 'punycode';
+import { toc } from 'mdast-util-toc';
+
+const getToc = (options) => {
+  return (node) => {
+    const result = toc(node, options);
+    node.children = [result.map];
+  };
+};
 
 export async function getStaticProps({ params }) {
   const file = fs.readFileSync(`posts/${params.slug}.md`, 'utf-8');
   const { data, content } = matter(file);
+
+  const toc = await unified()
+    .use(remarkParse)
+    .use(getToc, {
+      heading: '目次',
+      tight: true,
+    })
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .process(content);
 
   const result = await unified()
     .use(remarkParse)
@@ -36,7 +55,12 @@ export async function getStaticProps({ params }) {
     .process(content);
 
   return {
-    props: { frontMatter: data, content: result.toString(), slug: params.slug },
+    props: {
+      frontMatter: data,
+      content: result.toString(),
+      toc: toc.toString(),
+      slug: params.slug,
+    },
   };
 }
 
@@ -150,7 +174,15 @@ const Post = ({ frontMatter, content, slug }) => {
             </span>
           ))}
         </div>
-        {toReactNode(content)}
+        <div className="grid grid-cols-12">
+          <div className="col-span-9">{toReactNode(content)}</div>
+          <div className="col-span-3">
+            <div
+              className="sticky top-[50px]"
+              dangerouslySetInnerHTML={{ __html: toc }}
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
   );
