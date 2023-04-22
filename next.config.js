@@ -9,7 +9,6 @@ const nextConfig = {
   },
   assetPrefix: branchName,
   basePath: branchName,
-  trailingSlash: true,
 };
 
 module.exports = nextConfig;
