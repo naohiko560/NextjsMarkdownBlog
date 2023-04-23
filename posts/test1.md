@@ -30,7 +30,7 @@ Next.js を使って Markdown のブログサイトの構築を一から行な�
 テスト  
 
 ### プロジェクトの作成
-[<img src="http://localhost:3000/nextjs-welcome.png" alt="Next.jsのWelcomeページ" width="1024" height="679" />](/)
+[<img src="/nextjs-welcome.png" alt="Next.jsのWelcomeページ" width="600" height="1" />](/)
 npx create-next-app コマンドを利用して Next.js プロジェクトの作成を行います。
 
 テスト  
