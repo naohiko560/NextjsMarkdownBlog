@@ -113,8 +113,8 @@ const MyLink = ({ children, href }) => {
   // );
 };
 
-const MyImage = ({ src, alt, ...props }) => {
-  return <Image src={src} alt={alt} {...props} />;
+const MyImage = ({ src, alt, width, height }) => {
+  return <Image src={src} alt={alt} width={width} height={height} />;
 };
 
 // ※下記コードと同じ意味
