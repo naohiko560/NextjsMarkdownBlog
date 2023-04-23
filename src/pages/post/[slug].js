@@ -17,14 +17,41 @@ import { createElement } from 'react';
 import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
 import remarkUnwrapImages from 'remark-unwrap-images';
-import { toc } from 'mdast-util-toc';
+// import { toc } from 'mdast-util-toc';
+import { visit } from 'unist-util-visit';
 
-const getToc = (options) => {
-  return (node) => {
-    const result = toc(node, options);
-    node.children = [result.map];
+const customCode = () => {
+  return (tree) => {
+    visit(tree, 'element', (node) => {
+      if (node.tagName === 'p' && node.children[0].type === 'text') {
+        if (
+          node.children[0].value.startsWith('現在Teamsで障害が発生しています')
+        ) {
+          node.tagName = 'div';
+          node.properties = {
+            className: ['alert'],
+          };
+          const value = node.children[0].value.replace(/\[\/?comment\]/g, '');
+          node.children = [
+            {
+              type: 'element',
+              tagName: 'div',
+              properties: { className: ['alert-2'] },
+              children: [{ type: 'text', value }],
+            },
+          ];
+        }
+      }
+    });
   };
 };
+
+// const getToc = (options) => {
+//   return (node) => {
+//     const result = toc(node, options);
+//     node.children = [result.map];
+//   };
+// };
 
 export async function getStaticProps({ params }) {
   const file = fs.readFileSync(`posts/${params.slug}.md`, 'utf-8');
@@ -39,36 +66,35 @@ export async function getStaticProps({ params }) {
     .use(remarkGfm)
     .use(remarkUnwrapImages)
     .use(remarkRehype, { allowDangerousHtml: true })
+    .use(customCode)
     .use(rehypeSlug)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
 
-  const toc = await unified()
-    .use(remarkParse)
-    .use(getToc, {
-      heading: '目次',
-      maxDepth: 3,
-      tight: true,
-    })
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeStringify, { allowDangerousHtml: true })
-    .process(content);
+  // const toc = await unified()
+  //   .use(remarkParse)
+  //   .use(getToc, {
+  //     heading: '目次',
+  //     maxDepth: 3,
+  //     tight: true,
+  //   })
+  //   .use(remarkRehype, { allowDangerousHtml: true })
+  //   .use(rehypeStringify, { allowDangerousHtml: true })
+  //   .process(content);
 
   return {
     props: {
       frontMatter: data,
       content: result.toString(),
-      toc: toc.toString(),
+      // toc: toc.toString(),
       slug: params.slug,
     },
   };
 }
 
-console.log(toc.toString());
-
 const MyLink = ({ children, href }) => {
   if (href == '') href = '/';
-  if (href.startsWith('/')) return <Link href={href}>{children}</Link>;  
+  if (href.startsWith('/')) return <Link href={href}>{children}</Link>;
   if (href.startsWith('#')) {
     return <a href={href}>{children}</a>;
   } else {
@@ -192,7 +218,7 @@ const Post = ({ frontMatter, content, slug }) => {
           <div className="col-span-3">
             <div
               className="sticky top-[50px]"
-              dangerouslySetInnerHTML={{ __html: toc }}
+              // dangerouslySetInnerHTML={{ __html: toc }}
             ></div>
           </div>
         </div>
